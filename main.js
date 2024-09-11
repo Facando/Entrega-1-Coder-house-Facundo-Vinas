@@ -1,89 +1,172 @@
+const container = document.getElementById("container");
 
-    
-    const nacimiento = function () {
-    
-    let dia_n = parseInt(prompt("Ingresa tu dia de nacimiento"));
-    let mes_n = parseInt(prompt("Ingresa tu mes de nacimiento"));
-    let anio_n = parseInt(prompt("Ingresa tu anio de nacimiento"));
+const guardaDiaNacimiento = localStorage.getItem('diaNacimiento') || "";
+const guardaMesNacimiento = localStorage.getItem('mesNacimiento') || "";
+const guardaAnoNacimiento = localStorage.getItem('anoNacimiento') || "";
 
-    
-    alert(`Tu dia de nacimiento es ${dia_n}/${mes_n}/${anio_n}`);
-    return {dia_n, mes_n, anio_n} ;
-    
-    
+const inputDiaNacimiento = document.createElement("input");
+inputDiaNacimiento.type = "number";
+inputDiaNacimiento.placeholder = "Día de nacimiento";
+inputDiaNacimiento.value = guardaDiaNacimiento;  
+container.appendChild(inputDiaNacimiento);
+
+const inputMesNacimiento = document.createElement("input");
+inputMesNacimiento.type = "number";
+inputMesNacimiento.placeholder = "Mes de nacimiento";
+inputMesNacimiento.value = guardaMesNacimiento;  
+container.appendChild(inputMesNacimiento);
+
+const inputAnoNacimiento = document.createElement("input");
+inputAnoNacimiento.type = "number";
+inputAnoNacimiento.placeholder = "Año de nacimiento";
+inputAnoNacimiento.value = guardaAnoNacimiento;  
+container.appendChild(inputAnoNacimiento);
+
+const inputDiaHoy = document.createElement("input");
+inputDiaHoy.type = "number";
+inputDiaHoy.placeholder = "Día de hoy";
+container.appendChild(inputDiaHoy);
+
+const inputMesHoy = document.createElement("input");
+inputMesHoy.type = "number";
+inputMesHoy.placeholder = "Mes de hoy";
+container.appendChild(inputMesHoy);
+
+const inputAnoHoy = document.createElement("input");
+inputAnoHoy.type = "number";
+inputAnoHoy.placeholder = "Año de hoy";
+
+container.appendChild(inputAnoHoy);
+
+const botonFechas = document.createElement("button");
+botonFechas.textContent = "Calcular fechas especiales ";
+botonFechas.addEventListener("click", Calcular_fechas_especiales);
+container.appendChild(botonFechas);
+
+const botonEdad = document.createElement("button");
+botonEdad.textContent = "Calcular mes y días para cumpleaños";
+botonEdad.addEventListener("click", Calcular_edad_y_cumple);
+container.appendChild(botonEdad);
+
+let imprimir = document.createElement("p");
+container.appendChild(imprimir);
+
+function validarFecha(dia, mes, ano) {
+    if (mes < 1 || mes > 12) {
+        return false;
+    }
+    if (dia < 1 || dia > diasEnMes(mes, ano)) {
+        return false;
+    }
+    return true;
 }
 
-const fecha_actual = function () {
-     
-    let diahoy = parseInt(prompt("Ingresa el dia de hoy"));
-    let meshoy = parseInt(prompt("Ingresa el mes de hoy"));
-    alert(`Hoy es ${diahoy}/${meshoy}/2024`);
-    
-    return {diahoy, meshoy};
+function esBisiesto(ano) {
+    return (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+}
+
+function diasEnMes(mes, ano) {
+    const diasPorMes = [31, esBisiesto(ano) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return diasPorMes[mes - 1];
+}
+
+function guardarFechas() {
+    localStorage.setItem('diaNacimiento', inputDiaNacimiento.value);
+    localStorage.setItem('mesNacimiento', inputMesNacimiento.value);
+    localStorage.setItem('anoNacimiento', inputAnoNacimiento.value);
+}
+
+let borrar = document.createElement("button");
+borrar.textContent = "Borrar fechas para reiniciar";
+borrar.addEventListener("click", borrarFechas);
+container.appendChild(borrar);
+function borrarFechas() {
+    localStorage.removeItem('diaNacimiento');
+    localStorage.removeItem('mesNacimiento');
+    localStorage.removeItem('anoNacimiento');
+
+    location.reload();
 }
 
 
+function Calcular_fechas_especiales() {
+    const diaHoy = parseInt(inputDiaHoy.value);
+    const mesHoy = parseInt(inputMesHoy.value);
+    const anoHoy = parseInt(inputAnoHoy.value);
 
-function fecha(dia_n, mes_n, anio_n,diahoy, meshoy) {
-    
-    alert(`Hoy es ${diahoy}/${meshoy}/2024`);
-    
-    if (dia_n <= diahoy && mes_n <= meshoy) {
-        alert("Feliz cumpleaños "+ (2024 - anio_n));
-    } else  if (dia_n > diahoy && mes_n > meshoy) {
-        let resultadoDia = dia_n - diahoy;
-        let resultadoMes = mes_n - meshoy;
-        let diastotales = resultadoDia + resultadoMes*30
-        alert(`Faltan ${resultadoDia} días y ${resultadoMes} meses para tu cumpleaños o 
-        ${diastotales} días \n todavia tenes ${2024 - anio_n-1} anios`);
+    if (!validarFecha(diaHoy, mesHoy, anoHoy)) {
+        imprimir.innerText = "La fecha actual es inválida.";
+        return;
     }
 
+    const diasParaNavidad = calcularDiasHasta(25, 12, anoHoy, mesHoy, diaHoy);
+    const diasParaAnioNuevo = calcularDiasHasta(1, 1, anoHoy + 1, mesHoy, diaHoy);
+
+    if (diaHoy === 25 && mesHoy === 12) {
+        imprimir.innerText = "¡Feliz Navidad!";
+    } else if (diaHoy === 1 && mesHoy === 1) {
+        imprimir.innerText = "¡Feliz Año Nuevo!";
+    } else if (diasParaNavidad < diasParaAnioNuevo) {
+        imprimir.innerText = `Faltan ${diasParaNavidad} días para Navidad`;
+    } else {
+        imprimir.innerText = `Faltan ${diasParaAnioNuevo} días para Año Nuevo`;
+    }
 }
 
-const aniosfuturos = function (anio_n) {
-    let anio_f = parseInt(prompt("Ingresa el anio que deseas saber"));
-    anioResultado = anio_f - anio_n;
-    alert(`En ${anio_f} tendras ${anioResultado} anios`);
+function calcularDiasHasta(diaObjetivo, mesObjetivo, anoHoy, mesHoy, diaHoy) {
+    let diasFaltantes = 0;
+
+    if (mesHoy > mesObjetivo || (mesHoy === mesObjetivo && diaHoy > diaObjetivo)) {
+        for (let mes = mesHoy; mes <= 12; mes++) {
+            diasFaltantes += diasEnMes(mes, anoHoy);
+        }
+        for (let mes = 1; mes < mesObjetivo; mes++) {
+            diasFaltantes += diasEnMes(mes, anoHoy + 1);
+        }
+        diasFaltantes += diaObjetivo;
+        diasFaltantes -= diaHoy;
+    } else {
+        diasFaltantes += diasEnMes(mesHoy, anoHoy) - diaHoy;
+        for (let mes = mesHoy + 1; mes < mesObjetivo; mes++) {
+            diasFaltantes += diasEnMes(mes, anoHoy);
+        }
+        diasFaltantes += diaObjetivo;
+    }
+
+    return diasFaltantes;
 }
 
-let fin = true;
+function Calcular_edad_y_cumple() {
+    const diaNacimiento = parseInt(inputDiaNacimiento.value);
+    const mesNacimiento = parseInt(inputMesNacimiento.value);
+    const anoNacimiento = parseInt(inputAnoNacimiento.value);
 
-const fechaNacimiento = nacimiento();
-const fechaActual = fecha_actual();
-        
-while (fin) {
+    const diaHoy = parseInt(inputDiaHoy.value);
+    const mesHoy = parseInt(inputMesHoy.value);
+    const anoHoy = parseInt(inputAnoHoy.value);
+
+    if (!validarFecha(diaNacimiento, mesNacimiento, anoNacimiento) || !validarFecha(diaHoy, mesHoy, anoHoy)) {
+        imprimir.innerText = `Por favor, ingresa fechas válidas.`;
+        return;
+    }
+
+    guardarFechas();
+
+    let edad = anoHoy - anoNacimiento
+    let mes = mesHoy - mesNacimiento
+    let dia = diaHoy - diaNacimiento
+    if (mesHoy < mesNacimiento || (mesHoy === mesNacimiento && diaHoy < diaNacimiento)) {
+        edad--;
+    }
+
+    const diasParaCumple = calcularDiasHasta(diaNacimiento, mesNacimiento, anoHoy, mesHoy, diaHoy);
     
-
-let menu = parseInt(prompt("Ingresa el numero de la opcion que deseas \n 1. Calcular edad de hoy \n 2. Calcular edad futura" + "\n 3. Salir"));
-
-switch (menu) {
-    case 1:
-        console.log("opcion 1");
-        fecha(fechaNacimiento.dia_n, fechaNacimiento.mes_n, fechaNacimiento.anio_n, fechaActual.diahoy, fechaActual.meshoy);
-        break;
-    case 2:
-        console.log("opcion 2");
-        aniosfuturos( fechaNacimiento.anio_n);
-        break;
-    case 3:
-        fin = false;
-        console.log("Finaliza el programa");
-        break;
-    default:
-        alert("Opcion no valida");
-        fin = false;
-        break;
+    if (diaHoy === diaNacimiento && mesHoy === mesNacimiento) {
+        imprimir.innerText = `¡Feliz Cumpleaños! Tienes ${edad} años.`;
+    } else  {
+        
+        imprimir.innerText = `Tienes ${edad} años. Faltan ${mes*-1} meses y ${dia*-1} días  para tu cumpleaños.`;
+    } if (mesHoy>mesNacimiento || diaHoy>diaNacimiento && mesHoy===mesNacimiento ) {
+      imprimir.innerText = `Faltan ${diasParaCumple} días para tu cumpleaños.`
+    } 
 }
-
-
-
-}
-
-
-
-
-
-
-
-
-
